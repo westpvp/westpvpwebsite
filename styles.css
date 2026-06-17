@@ -1,0 +1,45 @@
+:root{
+  --bg:#0f1724;--card:#0b1220;--muted:#9aa4b2;--accent:#ffb86b;--accent-2:#7ce3ff;--text:#e6eef8;
+}
+*{box-sizing:border-box}
+body{font-family:Inter,system-ui,Arial,sans-serif;background:linear-gradient(180deg,#071022 0%,var(--bg) 100%);color:var(--text);margin:0;line-height:1.4}
+.container{max-width:1000px;margin:0 auto;padding:28px}
+.site-header{backdrop-filter:blur(6px);border-bottom:1px solid rgba(255,255,255,0.03)}
+.header-inner{display:flex;align-items:center;justify-content:space-between}
+.logo{height:44px}
+.nav a{color:var(--muted);margin-left:16px;text-decoration:none}
+.nav a.cta{background:var(--accent);color:#051018;padding:8px 12px;border-radius:8px}
+.hero{padding:64px 0;text-align:center}
+.hero h1{font-size:48px;margin:0 0 8px}
+.lead{color:var(--muted);max-width:720px;margin:0 auto 18px}
+.hero-actions{margin:18px 0}
+.btn{display:inline-block;padding:10px 16px;border-radius:10px;background:rgba(255,255,255,0.03);color:var(--text);text-decoration:none;margin-right:12px}
+.btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#04121a}
+.reset-card{display:none}
+
+/* particles.js background container */
+#particles-js{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* ensure main content sits above particles */
+main, .site-header, .footer, .container{position:relative;z-index:1}
+.features{padding-bottom:36px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:18px}
+.card{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);padding:16px;border-radius:12px}
+.footer{display:flex;justify-content:space-between;align-items:center;padding:28px 0;border-top:1px solid rgba(255,255,255,0.03);flex-wrap:wrap}
+.libs{display:flex;flex-wrap:wrap;gap:8px;padding:0;margin:8px 0;list-style:none}
+.libs a{color:var(--accent-2);text-decoration:none}
+.join-actions{display:flex;gap:20px;align-items:center}
+.server-card{background:var(--card);padding:12px;border-radius:10px;text-align:center}
+.ip{font-weight:700;margin-top:6px}
+@media(max-width:700px){.header-inner{flex-direction:column;gap:12px}.hero h1{font-size:36px}}
+
+/* Changelog styles */
+.changelogs .changelog-form{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.changelogs input[type=text], .changelogs input[type=date], .changelogs textarea{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.02);color:var(--text)}
+.changelogs .form-actions{display:flex;gap:8px;flex-wrap:wrap}
+.changelog-list .cl-entry{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);padding:12px;border-radius:10px;margin-bottom:10px}
+.cl-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.cl-date{color:var(--muted);font-size:13px}
+.cl-body{color:var(--text)}
+.cl-actions{margin-top:8px}
+.muted{color:var(--muted)}
