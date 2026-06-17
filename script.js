@@ -23,74 +23,45 @@ function initParticles(){
 document.addEventListener('DOMContentLoaded', ()=>{
   initParticles();
 });
-
-/* Changelogs: simple localStorage-backed editor */
-const CL_KEY = 'westpvp_changelogs_v1';
-function loadChangelogs(){
-  try{const raw = localStorage.getItem(CL_KEY); return raw?JSON.parse(raw):[] }catch(e){return[]}
-}
-function saveChangelogs(list){
-  localStorage.setItem(CL_KEY, JSON.stringify(list));
-}
-function renderChangelogs(){
-  const container = document.getElementById('changelog-list');
-  if(!container) return;
-  const list = loadChangelogs();
-  if(list.length===0){ container.innerHTML = '<p class="muted">No changelog entries yet.</p>'; return }
-  container.innerHTML = list.map(entry=>`
-    <div class="cl-entry" data-id="${entry.id}">
-      <div class="cl-header"><strong>${escapeHtml(entry.title)}</strong><span class="cl-date">${escapeHtml(entry.date||'')}</span></div>
-      <div class="cl-body">${escapeHtml(entry.body).replace(/\n/g,'<br>')}</div>
-      <div class="cl-actions"><button class="btn" data-action="delete" data-id="${entry.id}">Delete</button></div>
-    </div>
-  `).join('');
+/* Site utilities: copy to clipboard and open external links */
+function copyToClipboard(text){
+  if(!text) return Promise.reject(new Error('No text'));
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    return navigator.clipboard.writeText(text);
+  }
+  return new Promise((res, rej)=>{
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); document.body.removeChild(ta); res(); }catch(e){ document.body.removeChild(ta); rej(e); }
+  });
 }
 
-function addChangelog(title,date,body){
-  const list = loadChangelogs();
-  list.unshift({ id: Date.now().toString(36), title, date: date||new Date().toISOString().slice(0,10), body });
-  saveChangelogs(list);
-  renderChangelogs();
+function showToast(message, ms=1800){
+  let el = document.getElementById('site-toast');
+  if(!el){ el = document.createElement('div'); el.id = 'site-toast'; el.style.position='fixed'; el.style.right='16px'; el.style.bottom='16px'; el.style.padding='8px 12px'; el.style.background='rgba(0,0,0,0.8)'; el.style.color='#fff'; el.style.borderRadius='6px'; el.style.zIndex=9999; document.body.appendChild(el); }
+  el.textContent = message; el.style.opacity = '1';
+  clearTimeout(el._t);
+  el._t = setTimeout(()=>{ el.style.transition='opacity 260ms'; el.style.opacity='0'; }, ms);
 }
-
-function deleteChangelog(id){
-  let list = loadChangelogs();
-  list = list.filter(i=>i.id!==id);
-  saveChangelogs(list);
-  renderChangelogs();
-}
-
-function exportChangelogs(){
-  const list = loadChangelogs();
-  const blob = new Blob([JSON.stringify(list, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'westpvp-changelogs.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-}
-
-function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') }
 
 document.addEventListener('DOMContentLoaded', ()=>{
-  renderChangelogs();
-  const form = document.getElementById('changelog-form');
-  if(form){
-    form.addEventListener('submit', (e)=>{
+  // wire up data-action controls (open-link, copy)
+  document.body.addEventListener('click', (e)=>{
+    const el = e.target.closest('[data-action]');
+    if(!el) return;
+    const action = el.dataset.action;
+    if(action === 'copy'){
       e.preventDefault();
-      const title = document.getElementById('cl-title').value.trim();
-      const date = document.getElementById('cl-date').value;
-      const body = document.getElementById('cl-body').value.trim();
-      if(!title||!body) return;
-      addChangelog(title,date,body);
-      form.reset();
-    });
-  }
-  const listEl = document.getElementById('changelog-list');
-  if(listEl){
-    listEl.addEventListener('click', (e)=>{
-      const btn = e.target.closest('button[data-action="delete"]');
-      if(btn) deleteChangelog(btn.dataset.id);
-    });
-  }
-  const exportBtn = document.getElementById('export-cl'); if(exportBtn) exportBtn.addEventListener('click', exportChangelogs);
-  const clearBtn = document.getElementById('clear-cl'); if(clearBtn) clearBtn.addEventListener('click', ()=>{ if(confirm('Clear all changelog entries?')){ localStorage.removeItem(CL_KEY); renderChangelogs(); } });
+      const text = el.dataset.copy || '';
+      copyToClipboard(text).then(()=> showToast('Copied to clipboard')).catch(()=> showToast('Copy failed'));
+      return;
+    }
+    if(action === 'open-link'){
+      e.preventDefault();
+      const url = el.dataset.url;
+      if(!url) return;
+      window.open(url, '_blank', 'noopener');
+    }
+  });
 });
